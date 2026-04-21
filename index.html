@@ -298,6 +298,32 @@
                             <option value="90">90%</option>
                             <option value="100">100%</option>
                         </select>
+
+                        <div id="smc-section" style="display:none;">
+                            <label for="smc-k-count">SMC-K Awards:</label>
+                            <select id="smc-k-count">
+                                <option value="0">None</option>
+                                <option value="1">1 award ($141/mo)</option>
+                                <option value="2">2 awards ($282/mo)</option>
+                                <option value="3">3 awards ($423/mo)</option>
+                                <option value="4">4 awards ($564/mo)</option>
+                            </select>
+                            <p class="input-hint">Loss or loss of use of a creative organ, hand, foot, eye, etc.</p>
+
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="smc-s">
+                                <label for="smc-s" class="checkbox-label">SMC-S (Housebound) — 100% + additional 60%+</label>
+                            </div>
+
+                            <div class="checkbox-row" style="margin-top:6px;">
+                                <input type="checkbox" id="va-override-check">
+                                <label for="va-override-check" class="checkbox-label">Enter my exact VA monthly payment</label>
+                            </div>
+                            <div id="va-override-row" style="display:none;">
+                                <input type="number" id="va-override-amount" placeholder="e.g. 4200" min="0" step="1">
+                                <p class="input-hint">Your total monthly VA comp including all SMC. Check your VA.gov payment history.</p>
+                            </div>
+                        </div>
                         <p class="input-hint">VA disability compensation is tax-free and not affected by federal retirement.</p>
 
                         <label for="ss-estimate">Estimated Social Security at Age 67 ($/mo):</label>

@@ -75,6 +75,12 @@ const retirementTaxSel = document.getElementById('retirement-tax-rate');
 const tspMatchingDisplay = document.getElementById('tsp-matching-display');
 
 const vaRatingSel = document.getElementById('va-rating');
+const smcSection = document.getElementById('smc-section');
+const smcKCountSel = document.getElementById('smc-k-count');
+const smcSChk = document.getElementById('smc-s');
+const vaOverrideChk = document.getElementById('va-override-check');
+const vaOverrideRow = document.getElementById('va-override-row');
+const vaOverrideInp = document.getElementById('va-override-amount');
 const ssEstimateInp = document.getElementById('ss-estimate');
 const ssClaimAgeSel = document.getElementById('ss-claim-age');
 const hasMilRetirementChk = document.getElementById('has-mil-retirement');
@@ -249,7 +255,18 @@ function attachListeners() {
     retirementTaxSel.addEventListener('change', recalculate);
 
     // Additional income
-    vaRatingSel.addEventListener('change', recalculate);
+    vaRatingSel.addEventListener('change', () => {
+        const rating = parseInt(vaRatingSel.value) || 0;
+        smcSection.style.display = rating > 0 ? 'block' : 'none';
+        recalculate();
+    });
+    smcKCountSel.addEventListener('change', recalculate);
+    smcSChk.addEventListener('change', recalculate);
+    vaOverrideChk.addEventListener('change', () => {
+        vaOverrideRow.style.display = vaOverrideChk.checked ? 'block' : 'none';
+        recalculate();
+    });
+    vaOverrideInp.addEventListener('input', recalculate);
     ssEstimateInp.addEventListener('input', recalculate);
     ssClaimAgeSel.addEventListener('change', recalculate);
     hasMilRetirementChk.addEventListener('change', () => {
@@ -474,7 +491,10 @@ function recalculate() {
     const tradRoth = calcTraditionalVsRoth(tspProj.projectedBalance, currentTax, retirementTax, tradPct);
 
     // ─── 7. VA & SS ───
-    const vaMonthly = getVACompBasic(vaRating);
+    const smcKCount = parseInt(smcKCountSel.value) || 0;
+    const smcS = smcSChk.checked;
+    const vaOverride = vaOverrideChk.checked ? (parseFloat(vaOverrideInp.value) || 0) : 0;
+    const vaMonthly = getVACompWithSMC(vaRating, smcKCount, smcS, vaOverride);
     const ssMonthly = ssAt67 ? adjustSSForAge(ssAt67, ssClaimAge) : 0;
 
     // ─── 8. Combined picture ───
@@ -1026,7 +1046,12 @@ function buildShareUrl() {
     if (currentTaxSel.value) p.set('curtax', currentTaxSel.value);
     if (retirementTaxSel.value) p.set('rettax', retirementTaxSel.value);
 
-    if (vaRatingSel.value !== '0') p.set('va', vaRatingSel.value);
+    if (vaRatingSel.value !== '0') {
+        p.set('va', vaRatingSel.value);
+        if (smcKCountSel.value !== '0') p.set('smck', smcKCountSel.value);
+        if (smcSChk.checked) p.set('smcs', '1');
+        if (vaOverrideChk.checked && vaOverrideInp.value) p.set('vaamt', vaOverrideInp.value);
+    }
     if (ssEstimateInp.value) p.set('ss', ssEstimateInp.value);
     if (ssClaimAgeSel.value !== '67') p.set('ssage', ssClaimAgeSel.value);
     if (hasMilRetirementChk.checked) {
@@ -1080,7 +1105,17 @@ function loadFromUrl() {
     if (p.has('curtax')) currentTaxSel.value = p.get('curtax');
     if (p.has('rettax')) retirementTaxSel.value = p.get('rettax');
 
-    if (p.has('va')) vaRatingSel.value = p.get('va');
+    if (p.has('va')) {
+        vaRatingSel.value = p.get('va');
+        if (parseInt(p.get('va')) > 0) smcSection.style.display = 'block';
+    }
+    if (p.has('smck')) smcKCountSel.value = p.get('smck');
+    if (p.has('smcs')) smcSChk.checked = true;
+    if (p.has('vaamt')) {
+        vaOverrideChk.checked = true;
+        vaOverrideRow.style.display = 'block';
+        vaOverrideInp.value = p.get('vaamt');
+    }
     if (p.has('ss')) ssEstimateInp.value = p.get('ss');
     if (p.has('ssage')) ssClaimAgeSel.value = p.get('ssage');
     if (p.has('milret')) {

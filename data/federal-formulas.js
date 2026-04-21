@@ -454,7 +454,32 @@ const VA_BASIC_RATES_2026 = {
     60: 1389, 70: 1750, 80: 2035, 90: 2286, 100: 3806
 };
 
+// SMC rates 2026 (single veteran, no dependents)
+const SMC_K_2026 = 141;       // per award, stackable up to ~4
+const SMC_S_2026 = 4222;      // housebound rate (replaces base 100% rate)
+
 function getVACompBasic(rating) { return VA_BASIC_RATES_2026[rating] || 0; }
+
+/** Calculate total VA compensation including SMC
+ *  @param rating - VA disability rating (0-100)
+ *  @param smcKCount - Number of SMC-K awards (0-4)
+ *  @param smcS - Whether SMC-S (housebound) applies
+ *  @param overrideAmount - User-entered exact amount (overrides calculation) */
+function getVACompWithSMC(rating, smcKCount, smcS, overrideAmount) {
+    if (overrideAmount && overrideAmount > 0) return overrideAmount;
+
+    let base = VA_BASIC_RATES_2026[rating] || 0;
+
+    // SMC-S replaces the base 100% rate with the housebound rate
+    if (smcS && rating === 100) {
+        base = SMC_S_2026;
+    }
+
+    // SMC-K stacks on top of the base (or SMC-S) rate
+    const smcK = (smcKCount || 0) * SMC_K_2026;
+
+    return base + smcK;
+}
 
 // ── Social Security ─────────────────────────────────────────
 
