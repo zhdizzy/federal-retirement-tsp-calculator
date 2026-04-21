@@ -45,9 +45,382 @@
     </div>
 
     <div class="dashboard">
-        <!-- Tool content will be built here -->
+
+        <!-- ── SECTION 1: Federal Service ── -->
+        <div class="dash-row">
+            <div class="section-container">
+                <h2>Your Federal Service</h2>
+                <p class="section-subtitle">Tell us about your federal career to calculate your FERS pension.</p>
+
+                <div class="projection-grid">
+                    <div class="projection-col">
+                        <label for="gs-grade">GS Grade:</label>
+                        <select id="gs-grade">
+                            <option value="">Select grade...</option>
+                            <option value="1">GS-1</option>
+                            <option value="2">GS-2</option>
+                            <option value="3">GS-3</option>
+                            <option value="4">GS-4</option>
+                            <option value="5">GS-5</option>
+                            <option value="6">GS-6</option>
+                            <option value="7">GS-7</option>
+                            <option value="8">GS-8</option>
+                            <option value="9">GS-9</option>
+                            <option value="10">GS-10</option>
+                            <option value="11">GS-11</option>
+                            <option value="12">GS-12</option>
+                            <option value="13">GS-13</option>
+                            <option value="14">GS-14</option>
+                            <option value="15">GS-15</option>
+                        </select>
+
+                        <label for="gs-step">Step:</label>
+                        <select id="gs-step">
+                            <option value="1">Step 1</option>
+                            <option value="2">Step 2</option>
+                            <option value="3">Step 3</option>
+                            <option value="4">Step 4</option>
+                            <option value="5" selected>Step 5</option>
+                            <option value="6">Step 6</option>
+                            <option value="7">Step 7</option>
+                            <option value="8">Step 8</option>
+                            <option value="9">Step 9</option>
+                            <option value="10">Step 10</option>
+                        </select>
+
+                        <label for="locality">Locality Pay Area:</label>
+                        <select id="locality">
+                            <!-- populated by JS -->
+                        </select>
+
+                        <label>Estimated Annual Salary:</label>
+                        <p class="salary-display" id="salary-auto-display">$0</p>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="salary-override-check">
+                            <label for="salary-override-check" class="checkbox-label">Enter my actual salary</label>
+                        </div>
+                        <div id="salary-override-row" style="display:none;">
+                            <input type="number" id="salary-manual" placeholder="e.g. 95000" min="0" step="100">
+                            <p class="input-hint">Enter your actual annual salary including locality pay.</p>
+                        </div>
+                    </div>
+
+                    <div class="projection-col">
+                        <label for="fed-hire-date">Federal Hire Date:</label>
+                        <input type="date" id="fed-hire-date">
+                        <span class="detected-badge" id="fers-type-badge" style="display:none;"></span>
+                        <p class="input-hint">Auto-detects your FERS type and calculates years of service.</p>
+
+                        <label for="current-age">Current Age:</label>
+                        <input type="number" id="current-age" min="18" max="80" value="" placeholder="e.g. 38">
+                        <span class="detected-badge" id="mra-badge" style="display:none;"></span>
+
+                        <label for="retirement-age">Planned Retirement Age:</label>
+                        <input type="number" id="retirement-age" min="50" max="80" value="" placeholder="e.g. 62">
+                        <span class="detected-badge" id="eligibility-badge" style="display:none;"></span>
+
+                        <label>Federal Service:</label>
+                        <p class="salary-display" id="service-years-display" style="display:none;"></p>
+                        <p class="input-hint" id="service-years-hint">Enter your hire date above to auto-calculate, or enter manually below.</p>
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="service-years-override">
+                            <label for="service-years-override" class="checkbox-label">Enter years of service manually</label>
+                        </div>
+                        <div id="service-years-manual-row" style="display:none;">
+                            <input type="number" id="fed-service-years" min="0" max="45" value="" placeholder="e.g. 8" step="0.5">
+                        </div>
+
+                        <label for="sick-leave-hours">Unused Sick Leave (hours):</label>
+                        <input type="number" id="sick-leave-hours" min="0" max="5000" value="" placeholder="e.g. 1200" step="1">
+                        <p class="input-hint">100% of unused sick leave adds to your pension computation. 2,087 hrs = 1 year. Check your LES.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SECTION 2: Military Service Buyback ── -->
+        <div class="dash-row">
+            <div class="section-container">
+                <h2>Military Service Buyback</h2>
+                <p class="section-subtitle">Buy back your military time to increase your FERS pension.</p>
+
+                <div class="checkbox-row">
+                    <input type="checkbox" id="has-military-service" checked>
+                    <label for="has-military-service" class="checkbox-label">I have military service to buy back</label>
+                </div>
+
+                <div id="buyback-section">
+                    <div class="projection-grid">
+                        <div class="projection-col">
+                            <label for="mil-years">Years of Military Service:</label>
+                            <input type="number" id="mil-years" min="1" max="30" value="" placeholder="e.g. 4" step="1">
+
+                            <label for="mil-total-pay">Total Military Base Pay Earned:</label>
+                            <input type="number" id="mil-total-pay" placeholder="e.g. 152000" min="0" step="500">
+                            <p class="input-hint">Total base pay (not BAH/BAS) earned during your entire military career. Check your military pay records, LES history, or ask DFAS.</p>
+
+                            <button type="button" id="estimator-toggle" class="estimator-toggle-btn">I don't know my total base pay — help me estimate</button>
+                            <div id="estimator-section" style="display:none;">
+                                <p class="input-hint" style="margin-bottom:10px;">Add each rank you held and roughly how many years. We'll estimate your total base pay from this.</p>
+                                <div id="rank-entries">
+                                    <!-- rank rows added by JS -->
+                                </div>
+                                <button type="button" id="add-rank-btn" class="btn-add-rank">+ Add another rank</button>
+                                <div id="estimator-result" style="display:none;">
+                                    <p class="salary-display" id="estimator-total">$0</p>
+                                    <p class="input-hint">This is a rough estimate. Your actual total may differ based on promotions, time in grade, and pay table changes over the years.</p>
+                                    <button type="button" id="use-estimate-btn" class="btn-use-estimate">Use this estimate</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="projection-col">
+                            <label for="buyback-status">Buyback Deposit Status:</label>
+                            <select id="buyback-status">
+                                <option value="not-started">Not started</option>
+                                <option value="in-progress">In progress (partial payment)</option>
+                                <option value="completed">Already completed</option>
+                            </select>
+                            <p class="input-hint" id="buyback-status-hint">If completed, your military time already counts toward your FERS pension.</p>
+
+                            <div id="interest-info-row">
+                                <label for="years-since-fed-start">Years Since Starting Federal Service:</label>
+                                <input type="number" id="years-since-fed-start" min="0" max="40" value="" placeholder="e.g. 5" step="1">
+                                <p class="input-hint">Interest accrues on your deposit after 2 years of federal service at ~4%/year.</p>
+                            </div>
+
+                            <div class="checkbox-row" style="margin-top:14px;">
+                                <input type="checkbox" id="is-active-duty-retiree">
+                                <label for="is-active-duty-retiree" class="checkbox-label">I receive (or will receive) active-duty military retirement pay</label>
+                            </div>
+                            <div id="waiver-warning" class="interest-warning" style="display:none;">
+                                <p class="warn-title">Waiver Required</p>
+                                <p>To credit your active-duty service toward your FERS pension, you must <strong>waive your military retired pay</strong>. Compare your military pension to the FERS increase before deciding. Reserve/Guard retirees (Chapter 1223) do NOT need to waive.</p>
+                            </div>
+
+                            <div class="info-card" style="margin-top:16px;">
+                                <p class="info-title">Where to find your total base pay</p>
+                                <p style="margin-top:4px;"><strong>Best source:</strong> Contact DFAS at 1-888-332-7411 and request your earnings statement, or check myPay (mypay.dfas.mil) for LES history.</p>
+                                <p style="margin-top:4px;"><strong>Alternative:</strong> Your HR/payroll office can calculate the exact deposit amount when you file SF-3108.</p>
+                                <p style="margin-top:4px;"><strong>Important:</strong> Deposit must be paid in full before retirement or the option is lost forever.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buyback ROI Results (rendered by JS) -->
+                    <div id="buyback-results" class="results-panel" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SECTION 3: TSP (Thrift Savings Plan) ── -->
+        <div class="dash-row">
+            <div class="section-container">
+                <h2>Thrift Savings Plan (TSP)</h2>
+                <p class="section-subtitle">Project your TSP balance and optimize your contributions.</p>
+
+                <div class="projection-grid">
+                    <div class="projection-col">
+                        <label for="tsp-balance">Current TSP Balance:</label>
+                        <input type="number" id="tsp-balance" min="0" step="500" value="" placeholder="e.g. 85000">
+
+                        <label for="tsp-contribution-rate">Your Contribution Rate (%):</label>
+                        <input type="number" id="tsp-contribution-rate" min="0" max="100" step="1" value="" placeholder="e.g. 5">
+                        <p class="input-hint">Contribute at least 5% to get the full agency match (5% total from your agency).</p>
+
+                        <label for="tsp-return-rate">Expected Annual Return (%):</label>
+                        <select id="tsp-return-rate">
+                            <option value="0.05">5% — Conservative (G/F Fund heavy)</option>
+                            <option value="0.06">6% — Moderate (Lifecycle Fund)</option>
+                            <option value="0.07" selected>7% — Balanced (C/S/I mix)</option>
+                            <option value="0.08">8% — Aggressive (mostly C/S Fund)</option>
+                            <option value="0.10">10% — Very Aggressive (all equities)</option>
+                        </select>
+                    </div>
+
+                    <div class="projection-col">
+                        <label for="tsp-trad-pct">Traditional TSP (%):</label>
+                        <input type="number" id="tsp-trad-pct" min="0" max="100" step="5" value="100">
+                        <p class="input-hint" id="roth-display">Roth TSP: 0%</p>
+
+                        <p class="input-hint" style="margin-top:10px;">Catch-up contributions are auto-calculated based on your age: $8,000 extra at 50+, $11,250 at ages 60-63 (SECURE 2.0).</p>
+                        <input type="hidden" id="tsp-catchup">
+
+                        <label for="current-tax-rate">Current Marginal Tax Rate (%):</label>
+                        <select id="current-tax-rate">
+                            <option value="0.10">10%</option>
+                            <option value="0.12">12%</option>
+                            <option value="0.22" selected>22%</option>
+                            <option value="0.24">24%</option>
+                            <option value="0.32">32%</option>
+                            <option value="0.35">35%</option>
+                            <option value="0.37">37%</option>
+                        </select>
+
+                        <label for="retirement-tax-rate">Expected Retirement Tax Rate (%):</label>
+                        <select id="retirement-tax-rate">
+                            <option value="0.10">10%</option>
+                            <option value="0.12" selected>12%</option>
+                            <option value="0.22">22%</option>
+                            <option value="0.24">24%</option>
+                        </select>
+                        <p class="input-hint">Most federal retirees drop 1-2 brackets in retirement.</p>
+                    </div>
+                </div>
+
+                <!-- TSP Matching Display -->
+                <div id="tsp-matching-display" class="info-card" style="display:none;"></div>
+
+                <!-- TSP Projection Results (rendered by JS) -->
+                <div id="tsp-results" class="results-panel" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ── SECTION 4: Additional Retirement Income ── -->
+        <div class="dash-row">
+            <div class="section-container">
+                <h2>Additional Retirement Income</h2>
+                <p class="section-subtitle">Optional — include these for your complete retirement picture.</p>
+
+                <div class="projection-grid">
+                    <div class="projection-col">
+                        <label for="va-rating">VA Disability Rating:</label>
+                        <select id="va-rating">
+                            <option value="0">None / Not rated</option>
+                            <option value="10">10%</option>
+                            <option value="20">20%</option>
+                            <option value="30">30%</option>
+                            <option value="40">40%</option>
+                            <option value="50">50%</option>
+                            <option value="60">60%</option>
+                            <option value="70">70%</option>
+                            <option value="80">80%</option>
+                            <option value="90">90%</option>
+                            <option value="100">100%</option>
+                        </select>
+                        <p class="input-hint">VA disability compensation is tax-free and not affected by federal retirement.</p>
+
+                        <label for="ss-estimate">Estimated Social Security at Age 67 ($/mo):</label>
+                        <input type="number" id="ss-estimate" min="0" max="5000" step="50" value="" placeholder="e.g. 2400">
+                        <p class="input-hint">Check ssa.gov/myaccount for your estimate. FERS employees DO pay into Social Security — WEP does not apply.</p>
+                    </div>
+
+                    <div class="projection-col">
+                        <label for="ss-claim-age">Planned SS Claiming Age:</label>
+                        <select id="ss-claim-age">
+                            <option value="62">62 — Early (reduced ~30%)</option>
+                            <option value="65">65 — Early (reduced ~13%)</option>
+                            <option value="67" selected>67 — Full Retirement Age (100%)</option>
+                            <option value="70">70 — Delayed (increased ~24%)</option>
+                        </select>
+
+                        <div class="checkbox-row">
+                            <input type="checkbox" id="has-mil-retirement">
+                            <label for="has-mil-retirement" class="checkbox-label">I also receive military retirement pay</label>
+                        </div>
+                        <div id="mil-retirement-row" style="display:none;">
+                            <label for="mil-retirement-pay">Monthly Military Retirement Pay:</label>
+                            <input type="number" id="mil-retirement-pay" min="0" step="50" placeholder="e.g. 2500">
+                            <p class="input-hint">Gross monthly pension from military retirement (before tax).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── HERO CARD ── -->
+        <div class="dash-row">
+            <div id="hero-card" class="hero-placeholder">
+                <p class="hero-placeholder-text">Enter your federal service details above to see your retirement projection</p>
+            </div>
+        </div>
+
+        <!-- ── BUYBACK ROI ANALYSIS ── -->
+        <div id="buyback-analysis-section" class="dash-row" style="display:none;">
+            <div class="section-container">
+                <h2>Military Buyback — Return on Investment</h2>
+                <div id="buyback-analysis-content"></div>
+            </div>
+        </div>
+
+        <!-- ── TSP GROWTH PROJECTION ── -->
+        <div id="tsp-projection-section" class="dash-row" style="display:none;">
+            <div class="section-container">
+                <h2>TSP Growth Projection</h2>
+                <div id="tsp-projection-content"></div>
+            </div>
+        </div>
+
+        <!-- ── TSP CONTRIBUTION OPTIMIZER ── -->
+        <div id="tsp-optimizer-section" class="dash-row" style="display:none;">
+            <div class="section-container">
+                <h2>TSP Contribution Optimizer</h2>
+                <p class="section-subtitle">See how increasing your contribution rate impacts your retirement.</p>
+                <div id="tsp-optimizer-content"></div>
+            </div>
+        </div>
+
+        <!-- ── COMPLETE RETIREMENT BREAKDOWN ── -->
+        <div id="summary-section" class="dash-row" style="display:none;">
+            <div class="section-container">
+                <h2>Your Complete Retirement Picture</h2>
+                <div id="summary-content"></div>
+            </div>
+        </div>
+
+        <!-- ── FEHB NOTE ── -->
+        <div id="fehb-section" class="dash-row" style="display:none;">
+            <div class="section-container info-note">
+                <h3>Federal Employee Health Benefits (FEHB) in Retirement</h3>
+                <div id="fehb-content"></div>
+            </div>
+        </div>
+
+        <!-- ── EMAIL RESULTS ── -->
+        <div class="dash-row" id="email-results-container">
+            <div class="section-container email-section">
+                <h2>Email My Results</h2>
+                <p class="section-subtitle">Get a link to your personalized results — bookmark it, share it, or revisit anytime.</p>
+                <form id="email-form" class="email-form-row">
+                    <input type="email" id="email-input" placeholder="you@email.com" required>
+                    <button type="submit" id="email-submit-btn" class="btn-primary">Send My Results</button>
+                </form>
+                <p id="email-status" class="email-status"></p>
+                <p class="email-disclaimer">We'll subscribe you to The Better Veteran newsletter. One email per week, unsubscribe anytime.</p>
+            </div>
+        </div>
+
+        <!-- ── ACTION BAR ── -->
+        <div class="action-bar no-print">
+            <button type="button" id="print-btn" class="btn-secondary">Print My Results</button>
+            <button type="button" id="share-btn" class="btn-secondary">Copy Link to Share</button>
+        </div>
+
+        <!-- ── MORE TOOLS ── -->
+        <div class="more-tools no-print">
+            <h3>More Free Veteran Tools</h3>
+            <div class="tools-links">
+                <a href="/military-retirement/">Military Retirement Calculator</a>
+                <a href="/100-pt/">P&amp;T Benefits Calculator</a>
+                <a href="/va-combined/">VA Combined Rating Calculator</a>
+                <a href="/salary/">Salary Translator</a>
+                <a href="/va-loan/">VA Loan Calculator</a>
+                <a href="/state-benefits/">Best State for Veterans</a>
+                <a href="/gi-bill-vre/">GI Bill vs. VR&amp;E Calculator</a>
+                <a href="https://www.thebetterveteran.com/" target="_blank">The Better Veteran Newsletter</a>
+            </div>
+        </div>
+
+        <!-- ── FOOTER ── -->
+        <div class="page-footer">
+            <p>Built by <a href="https://www.thebetterveteran.com/" target="_blank">The Better Veteran</a>. This calculator provides estimates for planning purposes only. FERS pension amounts are subject to OPM verification. TSP projections assume constant returns and may vary. Consult your HR office or a financial advisor for official retirement planning.</p>
+            <p class="footer-sources">Sources: OPM FERS Handbook, TSP.gov, 5 USC Chapter 84, Social Security Administration</p>
+        </div>
+
     </div>
 
+    <script src="data/gs-pay-2026.js"></script>
+    <script src="data/federal-formulas.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
